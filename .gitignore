@@ -1,3 +1,5 @@
 datagen
 a.out
 *.swp*
+*.d
+*.o

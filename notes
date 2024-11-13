@@ -1,2 +1,0 @@
-datagen [<n>] [increasing|decreasing|random] [numbers] [[from] <min> [[to] <max>]] [by <step>]
-Create Makefile for project.
