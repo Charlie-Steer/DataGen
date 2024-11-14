@@ -24,6 +24,10 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 		else if (strncmp(argument_string, "long", 4) == 0) {
 			generation_settings.type = LONG;
 		}
+
+		else if (strncmp(argument_string, "uniq", 4) == 0) {
+			generation_settings.set_unique = true;
+		}
 		
 		else if (strncmp(argument_string, "inc", 3) == 0) {
 			generation_settings.order = INCREASING;
@@ -42,9 +46,11 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 			argument_string = argv[processed_args];
 			if (check_if_number(argument_string)) {
 				generation_settings.min = atoi(argument_string);
+				generation_settings.is_min_set = true;
 			}
 			else {
-				perror("Error: [min] stated by no number provided.");
+				perror("Error: [min] stated but no number provided.");
+				exit(1);
 			}
 		}
 		else if (strncmp(argument_string, "max", 3) == 0 ||
@@ -55,9 +61,11 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 			argument_string = argv[processed_args];
 			if (check_if_number(argument_string)) {
 				generation_settings.max = atoi(argument_string);
+				generation_settings.is_max_set = true;
 			}
 			else {
-				perror("Error: [max] stated by no number provided.");
+				perror("Error: [max] stated but no number provided.");
+				exit(1);
 			}
 		}
 		else if (strncmp(argument_string, "step", 5) == 0 ||
@@ -66,9 +74,11 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 			argument_string = argv[processed_args];
 			if (check_if_number(argument_string)) {
 				generation_settings.step = atoi(argument_string);
+				generation_settings.is_step_set = true;
 			}
 			else {
-				perror("Error: [step] stated by no number provided.");
+				perror("Error: [step] stated but no number provided.");
+				exit(1);
 			}
 		}
 
@@ -95,10 +105,15 @@ int check_if_word(char *argument) {
 }
 
 int check_if_number(char *argument) {
-	int i;
-	for (i = 0; argument[i] && isdigit(argument[i]); i++)
-		;
-	if (argument[i] == '\0' && i != 0) {
+	int i = 0;
+	if (argument[0] == '-' || argument[0] == '+') {
+		i += 1;
+	}
+	for (; argument[i] && isdigit(argument[i]); i++) {
+	}
+	bool is_any_digit = (i > 1 && (argument[0] == '-' || argument[0] == '+'))
+		|| (i > 0 && (argument[0] != '-' && argument[0] != '+'));
+	if (argument[i] == '\0' && is_any_digit) {
 		return (1);
 	}
 	else {

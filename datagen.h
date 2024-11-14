@@ -25,6 +25,10 @@ typedef struct generation_settings {
 	int min;
 	int max;
 	int step;
+	bool is_min_set; //TODO: Handle this.
+	bool is_max_set;
+	bool is_step_set;
+	bool set_unique;
 } generation_settings;
 
 generation_settings parse_arguments(int argc, char *argv[]);

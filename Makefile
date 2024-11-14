@@ -1,6 +1,7 @@
 CC = clang
 MODE ?= dev
-CFLAGS_dev = -DDEBUG -Wall -Wextra -MMD -g
+DEBUG_LEVEL ?= 1
+CFLAGS_dev = -DDEBUG=$(DEBUG_LEVEL) -Wall -Wextra -MMD -g
 CFLAGS_prod = -DNDEBUG -Wall -Wextra -O2 -MMD
 CFLAGS = $(CFLAGS_$(MODE))
 NAME = datagen
