@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <time.h>
 #include <assert.h>
+#include <math.h>
 
 void generate_integers(generation_settings generation_settings);
 double change_range_of_value(double value, double old_min, double old_max, double new_min, double new_max);
@@ -72,17 +73,18 @@ void set_numbers_in_range(generation_settings generation_settings, int *number_a
 			assert(sign >= RAND_MAX / 2);
 			sign = 1;
 		}
-		//FIX: WHEN A NEGATIVE NUMBER IS SET AS MIN, MIN IS NOT INCLUDED IN RANGE.
 		int value = rand() * sign - (sign == -1);
 		value = change_range_of_value(
 			value, -RAND_MAX - 1, RAND_MAX, generation_settings.min, generation_settings.max); //? Would this recreate the variable every iteration?
-		number_array[i] = value;
+		value = floor(value);
+		number_array[i] = (int)floor(value);
 	}
 }
 
 double change_range_of_value(double value, double old_min, double old_max, double new_min, double new_max) {
 	value = (value - old_min) / (old_max - old_min);
 	value = (value * (new_max - new_min)) + new_min;
+	value = floor(value);
 	return (value);
 }
 

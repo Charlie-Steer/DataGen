@@ -19,7 +19,7 @@ DEPENDENCIES = $(SOURCES:.c=.d)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(NAME)
+	$(CC) $(CFLAGS) -lm $(OBJECTS) -o $(NAME)
 ifeq ($(MODE), prod)
 	strip $(NAME)
 endif
