@@ -44,12 +44,14 @@ void generate_integers(generation_settings generation_settings) {
 	}
 
 	for (int i = 0; i < generation_settings.amount; i++) {
-		printf("%d\n", number_array[i]);
+		int separator = generation_settings.separator;
+		if (i + 1 == generation_settings.amount) {
+			separator = '\n';
+		}
+		printf("%d%c", number_array[i], separator);
 	}
 
 	free(number_array);
-
-	printf("\n"); //TODO: Determine separator through CLI argument.
 }
 
 void set_numbers_by_auto_range(generation_settings generation_settings, int *number_array) {

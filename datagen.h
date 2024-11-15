@@ -25,7 +25,8 @@ typedef struct generation_settings {
 	int min;
 	int max;
 	int step;
-	bool is_min_set; //TODO: Handle this.
+	char separator;
+	bool is_min_set;
 	bool is_max_set;
 	bool is_step_set;
 	bool set_unique;

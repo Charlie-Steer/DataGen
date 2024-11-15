@@ -2,6 +2,7 @@
 
 int check_if_word(char *argument);
 int check_if_number(char *argument);
+int check_if_flag(char *argument);
 
 generation_settings parse_arguments(int argc, char *argv[]) {
 	generation_settings	generation_settings;
@@ -16,7 +17,8 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 		generation_settings.amount = DEFAULT_AMOUNT;
 	}
 
-	while (argc - processed_args && check_if_word(argument_string = argv[processed_args])) {
+	while (argc - processed_args && (check_if_word(argument_string = argv[processed_args])
+		|| check_if_flag(argument_string))) {
 		if (strncmp(argument_string, "num", 3) == 0 ||
 			strncmp(argument_string, "int", 3) == 0) {
 			generation_settings.type = INTEGER;
@@ -82,11 +84,20 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 			}
 		}
 
+		// printf("arg: %s\n", argument_string);
+		else if (strncmp(argument_string, "-h", 3) == 0
+			|| strncmp(argument_string, "--horizontal", 13) == 0) {
+			generation_settings.separator = ' ';
+		}
+
 		else {
 			fprintf(stderr, "Error: unrecognized keyword \"%s\".\n", argument_string);
 			exit (1);
 		}
 		processed_args += 1;
+	}
+	if (!generation_settings.separator) {
+		generation_settings.separator = '\n';
 	}
 
 	return (generation_settings);
@@ -97,6 +108,20 @@ int check_if_word(char *argument) {
 	for (i = 0; argument[i] && isalpha(argument[i]); i++)
 		;
 	if (argument[i] == '\0' && i != 0) {
+		return (1);
+	}
+	else {
+		return (0);
+	}
+}
+
+int check_if_flag(char *argument) {
+	int i = 0;
+	for (; i < 2 && argument[i] == '-'; i++) {
+	}
+	for (; argument[i] && isalpha(argument[i]); i++)
+		;
+	if (argument[i] == '\0' && i != 0 && i != '-') {
 		return (1);
 	}
 	else {
