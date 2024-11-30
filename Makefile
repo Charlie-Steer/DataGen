@@ -9,6 +9,7 @@ RM = rm -rf
 SOURCES = \
 	datagen.c \
 	parsing.c \
+	unique_numbers.c \
 	debug.c
 OBJECTS = $(SOURCES:.c=.o)
 DEPENDENCIES = $(SOURCES:.c=.d)

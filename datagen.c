@@ -1,6 +1,5 @@
 #include "datagen.h"
 #include <limits.h>
-#include <time.h>
 #include <assert.h>
 #include <math.h>
 
@@ -9,7 +8,11 @@ double change_range_of_value(double value, double old_min, double old_max, doubl
 int determine_minimum_upper_limit(const generation_settings generation_settings);
 void set_numbers_by_auto_range(generation_settings generation_settings, int *number_array);
 void set_numbers_in_range(generation_settings generation_settings, int *number_array);
+int get_random_number_in_range(int min, int max);
+void print_number_array(int *number_array, int array_length, char separator);
 
+//TODO: Make max inclusive.
+//TODO: Handle min > max case.
 int main(int argc, char *argv[]) {
 	generation_settings generation_settings;
 	if (argc == 1) {
@@ -29,58 +32,76 @@ int main(int argc, char *argv[]) {
 	return (0);
 }
 
+//! Ensure new auto-range system replaces old in all paths.
 void generate_integers(generation_settings generation_settings) {
-	int *number_array = calloc(generation_settings.amount, sizeof(int));
-	if (!number_array) {
-		perror("Error: Failed to allocate heap memory.");
-		exit(1);
-	}
-
-	if (!generation_settings.is_min_set && !generation_settings.is_max_set) {
-		set_numbers_by_auto_range(generation_settings, number_array);
+	int *number_array;
+	if (generation_settings.set_unique) {
+		number_array = calloc(generation_settings.max - generation_settings.min, sizeof(int));
+		if (!number_array) {
+			perror("error: failed to allocate heap memory."); //? how do these work. is this the better error printing function?
+			exit(1);
+		}
+		set_unique_numbers(number_array, generation_settings);
 	}
 	else {
-		set_numbers_in_range(generation_settings, number_array);
-	}
+		number_array = calloc(generation_settings.amount, sizeof(int));
+		if (!number_array) {
+			perror("error: failed to allocate heap memory."); //? how do these work. is this the better error printing function?
+			exit(1);
+		}
 
-	for (int i = 0; i < generation_settings.amount; i++) {
-		int separator = generation_settings.separator;
-		if (i + 1 == generation_settings.amount) {
+		set_numbers_in_range(generation_settings, number_array);
+		// if (!generation_settings.is_min_set && !generation_settings.is_max_set) {
+		// 	set_numbers_by_auto_range(generation_settings, number_array);
+		// }
+		// else {
+		// 	set_numbers_in_range(generation_settings, number_array);
+		// }
+	}
+	print_number_array(number_array, generation_settings.amount, generation_settings.separator);
+	free(number_array);
+}
+
+void print_number_array(int *number_array, int array_length, char separator) {
+	for (int i = 0; i < array_length; i++) {
+		if (i + 1 == array_length) {
 			separator = '\n';
 		}
 		printf("%d%c", number_array[i], separator);
 	}
-
-	free(number_array);
 }
-
-void set_numbers_by_auto_range(generation_settings generation_settings, int *number_array) {
-	for (int i = 0; i < generation_settings.amount; i++) {
-		srand(clock());
-		int max = determine_minimum_upper_limit(generation_settings);
-		int rand_val = change_range_of_value(
-			rand(), 0, RAND_MAX, 0, max); //? Would this recreate the variable every iteration?
-		number_array[i] = rand_val;
-	}
-}
+//
+// void set_numbers_by_auto_range(generation_settings generation_settings, int *number_array) {
+// 	for (int i = 0; i < generation_settings.amount; i++) {
+// 		srand(clock());
+// 		// int max = determine_minimum_upper_limit(generation_settings);
+// 		int rand_val = change_range_of_value(
+// 			rand(), 0, RAND_MAX, generation_settings.min, generation_settings.max); //? Would this recreate the variable every iteration?
+// 		number_array[i] = rand_val;
+// 	}
+// }
 
 void set_numbers_in_range(generation_settings generation_settings, int *number_array) {
 	for (int i = 0; i < generation_settings.amount; i++) {
-		srand(clock());
-		int sign = rand();
-		if (sign < RAND_MAX/2) {
-			sign = -1;
-		}
-		else {
-			assert(sign >= RAND_MAX / 2);
-			sign = 1;
-		}
-		int value = rand() * sign - (sign == -1);
-		value = change_range_of_value(
-			value, -RAND_MAX - 1, RAND_MAX, generation_settings.min, generation_settings.max); //? Would this recreate the variable every iteration?
-		value = floor(value);
-		number_array[i] = (int)floor(value);
+		int value = get_random_number_in_range(generation_settings.min, generation_settings.max);
+		number_array[i] = value;
 	}
+}
+
+int get_random_number_in_range(int min, int max) {
+	srand(clock()); //! May be better to only set the seed once.
+	int sign = rand();
+	if (sign < RAND_MAX/2) {
+		sign = -1;
+	}
+	else {
+		assert(sign >= RAND_MAX / 2);
+		sign = 1;
+	}
+	int value = rand() * sign - (sign == -1);
+	value = change_range_of_value(
+		value, -RAND_MAX - 1, RAND_MAX, min, max); //? Would this recreate the variable every iteration?
+	return (value);
 }
 
 double change_range_of_value(double value, double old_min, double old_max, double new_min, double new_max) {
@@ -88,14 +109,4 @@ double change_range_of_value(double value, double old_min, double old_max, doubl
 	value = (value * (new_max - new_min)) + new_min;
 	value = floor(value);
 	return (value);
-}
-
-int determine_minimum_upper_limit(const generation_settings generation_settings) {
-	int amount = generation_settings.amount;
-	int max = 10;
-
-	while (amount /= 10) {
-		max *= 10;
-	}
-	return (max);
 }

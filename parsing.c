@@ -3,6 +3,7 @@
 int check_if_word(char *argument);
 int check_if_number(char *argument);
 int check_if_flag(char *argument);
+int determine_minimum_upper_limit(const generation_settings generation_settings);
 
 generation_settings parse_arguments(int argc, char *argv[]) {
 	generation_settings	generation_settings;
@@ -20,7 +21,8 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 	while (argc - processed_args && (check_if_word(argument_string = argv[processed_args])
 		|| check_if_flag(argument_string))) {
 		if (strncmp(argument_string, "num", 3) == 0 ||
-			strncmp(argument_string, "int", 3) == 0) {
+			strncmp(argument_string, "int", 3) == 0 ||
+			strncmp(argument_string, "val", 3) == 0) {
 			generation_settings.type = INTEGER;
 		}
 		else if (strncmp(argument_string, "long", 4) == 0) {
@@ -96,6 +98,9 @@ generation_settings parse_arguments(int argc, char *argv[]) {
 		}
 		processed_args += 1;
 	}
+	if (!generation_settings.is_max_set || !generation_settings.is_min_set) {
+		generation_settings.max = determine_minimum_upper_limit(generation_settings);
+	}
 	if (!generation_settings.separator) {
 		generation_settings.separator = '\n';
 	}
@@ -144,5 +149,15 @@ int check_if_number(char *argument) {
 	else {
 		return (0);
 	}
+}
+
+int determine_minimum_upper_limit(const generation_settings generation_settings) {
+	int amount = generation_settings.amount;
+	int max = 10;
+
+	while (amount /= 10) {
+		max *= 10;
+	}
+	return (max);
 }
 
